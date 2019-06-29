@@ -62,6 +62,8 @@ import java.util.concurrent.TimeUnit;
 import org.tensorflow.lite.examples.detection.customview.AutoFitTextureView;
 import org.tensorflow.lite.examples.detection.env.Logger;
 
+import android.graphics.Rect;
+
 @SuppressLint("ValidFragment")
 public class CameraConnectionFragment extends Fragment {
   private static final Logger LOGGER = new Logger();
@@ -467,6 +469,19 @@ public class CameraConnectionFragment extends Fragment {
                 // Flash is automatically enabled when necessary.
                 previewRequestBuilder.set(
                     CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH);
+
+                final Activity activity = getActivity();
+                final CameraManager manager = (CameraManager) activity.getSystemService(Context.CAMERA_SERVICE);
+                final CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
+                Rect maxZoomrect = characteristics.get(CameraCharacteristics
+                        .SENSOR_INFO_ACTIVE_ARRAY_SIZE);
+
+                int ZOOM_TO_WIDHT = 800;
+                int ZOOM_TO_HEIGHT = 800;
+                int left = (maxZoomrect.right - maxZoomrect.left - ZOOM_TO_WIDHT ) / 2;
+                int top = (maxZoomrect.bottom - maxZoomrect.top - ZOOM_TO_HEIGHT) / 2;
+                Rect rect = new Rect(left, top, left+ZOOM_TO_WIDHT, top+ZOOM_TO_HEIGHT);
+                previewRequestBuilder.set(CaptureRequest.SCALER_CROP_REGION, rect);
 
                 // Finally, we start displaying the camera preview.
                 previewRequest = previewRequestBuilder.build();
